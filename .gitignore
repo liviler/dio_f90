@@ -1,0 +1,6 @@
+exe/
+data/
+Mg24.sh
+src/mod/ 
+src/obj/
+*.mod

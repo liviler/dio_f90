@@ -28,12 +28,13 @@ implicit none
 logical :: ifPrint=.False.
 integer :: constraint_index,iteration_index
 character(len=150) :: format1,format2,format3
-
+character(len=20) :: length
 format1 = "(110(1h=),/, 48x,'Iteration: ',i4,48x,/,(110(1h-)))"
 format2 = "(i3,'. It. si =',f15.10,'  E =',f15.10,'  R =',f15.10,'  b2 =',f15.10,'  b3 =',f15.10)"
 ! format2 = "(i3,'. It. si =',f30.25,'  E =',f30.25,'  R =',f30.25,'  b2 =',f30.25,'  b3 =',f30.25)"
 format3 = "(/,110(1h#),/,'#',27x ,'Iteration converged after',i4,' steps, si =',f13.10,27x,'#',/,110(1h#))"
 
+write(*,*)"PROGRAM Start!"
 open(outputfile%u_config, file=outputfile%config, status='unknown')
 call math_gfv
 call read_file_b23
@@ -63,6 +64,9 @@ do constraint_index = 1, constraint%length ! loop for different deformation para
     call initial_delta_field
     call initial_potential_fields(ifPrint .and. .True.)
 
+    write(length ,*) constraint%length
+    write(*,"('Constraint: ',i4,'/',a, 'beta2=',f6.2,'   beat3=',f6.2)")  &
+    constraint%index, adjustl(length),constraint%betac(constraint%index),constraint%bet3c(constraint%index)
     do iteration_index = 1, iteration%iteration_max ! iteration loop
         iteration%ii = iteration_index
         write(outputfile%u_outputf,format1) iteration_index
@@ -100,6 +104,8 @@ do constraint_index = 1, constraint%length ! loop for different deformation para
     end do
     write(outputfile%u_outputf,format3) iteration%ii,iteration%si
          
+    write(*,"('Iteration converged after',i4,' steps, si =',f13.8, '  ,beta2 =',f6.3,'  ,beta3 =',f6.3)") &
+            iteration%ii,iteration%si,expectations%betg,expectations%beto
     if(option%eqType .eq. 0) then
         call transform_coefficients_form_cylindrical_to_spherical(ifPrint .and. .True.)
         ! call calculate_rotational_correction_energy_DIR
@@ -110,6 +116,7 @@ do constraint_index = 1, constraint%length ! loop for different deformation para
 end do
 close(outputfile%u_rotationalE)
 close(outputfile%u_outExpectation)
+write(*,*)"PROGRAM END!"
 END PROGRAM DIO
 
 !==============================================================================!

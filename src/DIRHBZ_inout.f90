@@ -415,13 +415,16 @@ end subroutine
 
 subroutine write_expectation
     use Globals,only: outputfile,constraint,iteration,expectations
-    character(len=*), parameter ::  format1 = "(a,2x,a5,4x,2(a5,2x),3(a9,5x))", &
-                                    format2 = "(i3,3x,f12.6,2x,2(f5.2,2x),3(f12.6,2x))"
+    character(len=*), parameter ::  format1 = "(a,2x,a5,4x,2(a5,2x),2(a15,2x),3(a9,5x))", &
+                                    format2 = "(i3,3x,f12.6,2x,2(f5.2,2x),2(6x,f5.2,6x),3(f12.6,2x))"
     if(constraint%index==1) then
-        write(outputfile%u_outExpectation,format1) "iteration","  epsi","beta2 ","beta3 ","Etot","Erot","Etot+Erot"
+        write(outputfile%u_outExpectation,format1) "iteration","  epsi","beta2 ","beta3 ",&
+                                                    "beta2_calculate","beta3_calculate","Etot","Erot","Etot+Erot"
     endif
-    write(outputfile%u_outExpectation,format2) iteration%ii,iteration%si,expectations%beta2,expectations%beta3,&
-          expectations%etot,expectations%Erot,expectations%etot+expectations%Erot
+    write(outputfile%u_outExpectation,format2) iteration%ii,iteration%si,&
+            constraint%betac(constraint%index),constraint%bet3c(constraint%index), &
+            expectations%beta2,expectations%beta3,&
+            expectations%etot,expectations%Erot,expectations%etot+expectations%Erot
 end subroutine
 
 subroutine write_wavefuntion

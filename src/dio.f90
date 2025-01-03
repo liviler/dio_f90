@@ -16,7 +16,7 @@ use Forces, only : set_force_parameters,calculate_density_dependence_of_coupling
 use Nucleus, only: set_nucleus_attributes
 use Basis, only : set_basis,transform_coefficients_form_cylindrical_to_spherical
 use Constraints, only: set_constraint_parameters,calculate_constraint_potential_coefficients
-use BCS, only: initial_pairing_field,calculate_occupation
+use BCS, only: initial_pairing_field,calculate_occupation,set_block_level_of_KPi
 use DiracEquation, only: calculate_sigma_nabla,solve_dirac_equation
 use Density, only: calculate_densities_DIR,calculate_densities_RHB
 use Expectation, only: calculate_expectation_DIR,calculate_expectation_RHB
@@ -95,15 +95,15 @@ do constraint_index = 1, constraint%length ! loop for different deformation para
         write(outputfile%u_outputf,format2)iteration%ii,iteration%si,expectations%ea, &
               expectations%rms,expectations%betg,expectations%beto
         
-        if(option%block == 2 .and. pairing%allow_block) exit
+        if(option%block_method == 2 .and. pairing%allow_block) exit
         if(iteration%ii.ge.2 .and. abs(iteration%si).lt.iteration%epsi) then
-            if(option%block==0 .or. pairing%allow_block) exit ! exit iteration
+            if(option%block_type==0 .or. pairing%allow_block .or. option%block_method==1) exit ! exit iteration
+            if(option%block_type==2) call set_block_level_of_KPi(.True.)
             pairing%allow_block = .True.
         endif
 
     end do
     write(outputfile%u_outputf,format3) iteration%ii,iteration%si
-         
     write(*,"('Iteration converged after',i4,' steps, si =',f13.8, '  ,beta2 =',f6.3,'  ,beta3 =',f6.3)") &
             iteration%ii,iteration%si,expectations%betg,expectations%beto
     if(option%eqType .eq. 0) then

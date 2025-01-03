@@ -101,9 +101,14 @@ subroutine read_file_dio(ifPrint)
     read(u_dio, format3) input_par%constraint_cspr
     read(u_dio, format3) input_par%constraint_cmax
     read(u_dio, format1) input_par%option_iRHB
+    read(u_dio, format1) input_par%option_iBlock
     read(u_dio, format8) input_par%block_level(1)
     read(u_dio, format8) input_par%block_level(2)
-    read(u_dio, format1) input_par%option_blockType
+    read(u_dio, format8) input_par%K(1)
+    read(u_dio, format1) input_par%Pi(1)
+    read(u_dio, format8) input_par%K(2)
+    read(u_dio, format1) input_par%Pi(2)
+    read(u_dio, format1) input_par%option_blockMethod
     read(u_dio, format8) OddA%qusiparticle_state_neutron
     read(u_dio, format1) input_par%option_crankCase
     close(u_dio)
@@ -112,7 +117,8 @@ subroutine read_file_dio(ifPrint)
     iteration%xmix = input_par%potential_mix
     !Option set here
     option%eqType = input_par%option_iRHB
-    option%block = input_par%option_blockType
+    option%block_type =  input_par%option_iBlock
+    option%block_method = input_par%option_blockMethod
     option%crankCase = input_par%option_crankCase
     if(ifPrint) call printInputConfig
     contains

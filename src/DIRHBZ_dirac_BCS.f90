@@ -55,7 +55,9 @@ subroutine initial_pairing_field(ifPrint)
     enddo
     ! set block
     pairing%block_level = input_par%block_level
-    if(option%block == 1) then
+    pairing%block_K = input_par%K
+    pairing%block_Pi = input_par%Pi
+    if(option%block_type == 1 .and. option%block_method == 1) then
         pairing%allow_block = .True.
     else
         pairing%allow_block = .False.
@@ -328,7 +330,7 @@ subroutine set_occupation_global_variable(it)
     integer, intent(in) :: it
     integer :: k
     real(r64) :: vk1,uk1
-    ! block level for Odd-Mass nuclei
+    ! block level for Odd-N/Z nuclei
     if(it==1) then
         block_level = pairing%block_level(1)
     else
@@ -491,5 +493,94 @@ function isBlocked(k)
         isBlocked = .True.
     endif
 end function isBlocked
+
+subroutine set_block_level_of_KPi(ifPrint)
+    !--------------------------------------------------------------------
+    !  Assign the energy level of the minimum quasiparticle energy
+    !  under the given  K^\Pi  to `block_level`.
+    !------------------------------------------------------
+    use Globals, only: BS
+    logical,intent(in),optional :: ifPrint
+    real(r64) :: min_qusiparticle_Energy,smax,s,qusiparticle_Energy
+    integer :: it,ib,parity,min_qusiparticle_level,nf,i0f,kk,k1,k2,n,imax,kk_parity
+    ! find the level
+    do it = 1,2
+        ib = pairing%block_K(it) ! 1: 1/2, 2: 3/2
+        parity = pairing%block_Pi(it) ! 1 for '+'; -1 for '-'
+        min_qusiparticle_Energy = 50.0
+        min_qusiparticle_level = 0
+        if(ib > 0) then 
+            nf = BS%HO_cyl%id(ib,1)
+            i0f = BS%HO_cyl%ia(ib,1)
+            k1 = dirac%ka(ib,it) + 1
+            k2 = dirac%ka(ib,it) + dirac%kd(ib,it)
+            do kk = k1,k2
+                if (dirac%ee(kk,it)-pairing%ala(it).gt.30.0) cycle
+                ! search for main oscillator component
+                smax = 0.d0
+                do n = 1,nf
+                    s = abs(dirac%fg(n,kk,it))
+                    if (s.gt.smax) then
+                        smax = s
+                        imax = n
+                    endif
+                enddo
+
+                ! quasiparticle energy
+                qusiparticle_Energy = sqrt((dirac%ee(kk,it)-pairing%ala(it))**2+(pairing%skk(kk,it)*pairing%de(kk,it))**2)
+                
+                ! parity
+                kk_parity = (-1) ** (BS%HO_cyl%nz(i0f+imax) + BS%HO_cyl%ml(i0f+imax))
+                ! find min quasiparticle energy with given parity(Pi)
+                if(qusiparticle_Energy < min_qusiparticle_Energy  .and. kk_parity == parity ) then
+                    min_qusiparticle_Energy = qusiparticle_Energy
+                    min_qusiparticle_level = kk
+                endif
+            enddo   
+        endif 
+        ! assign block_level
+        pairing%block_level(it) = min_qusiparticle_level
+    enddo
+
+    if(ifPrint) call printKPi
+    contains
+    subroutine printKPi
+        use Globals,only: outputfile,option
+        integer :: K  
+        character :: parity_str
+        character(len=*), parameter :: format1 = "('   K^\pi:',13x,i2,'/2',a)"
+        write(outputfile%u_outputf,*) '*************************BEGIN  printKPi********************'
+        if(option%block_method==2) then 
+            write(outputfile%u_outputf,*) "Block Method: convergence -> block"
+        else if(option%block_method==3) then
+            write(outputfile%u_outputf,*) "Block Method: convergence -> block -> convergence"
+        endif
+        ! Neutron
+        K = pairing%block_K(1)
+        if(pairing%block_Pi(1)==1) then 
+            parity_str = '+'
+        else if(pairing%block_Pi(1)==-1) then
+            parity_str = '-'
+        endif
+        if(K>0) then
+            write(outputfile%u_outputf,*) "Block Neutron:"
+            write(outputfile%u_outputf,format1) 2*K-1, parity_str
+            write(outputfile%u_outputf,*) "  block level:", pairing%block_level(1)
+        endif
+        ! Proton
+        K = pairing%block_K(2)
+        if(pairing%block_Pi(2)==1) then 
+            parity_str = '+'
+        else if(pairing%block_Pi(2)==-1) then
+            parity_str = '-'
+        endif
+        if(K>0) then
+            write(outputfile%u_outputf,*) "Block Proton:"
+            write(outputfile%u_outputf,format1) 2*K-1, parity_str
+            write(outputfile%u_outputf,*) "  block level:", pairing%block_level(2)
+        endif
+        write(outputfile%u_outputf,*) '*************************END printKPi **********************'
+    end subroutine printKPi
+end subroutine set_block_level_of_KPi
 
 END MODULE BCS

@@ -16,7 +16,8 @@ public
 ! --- input dio.par-------
 type Option_
     integer :: eqType ! 0: solve dirac equation, 1: solve RHB equation
-    integer :: block  ! 0: no blocking; 1: Self-consistent blocking; 2: Block after convergence; 3: Self-consistent blocking after convergence
+    integer :: block_type !  0: Non-blocking; 1: Block the given energy level; 2: Block according to K^\pi
+    integer :: block_method ! 1: blocking -> convergence;   2:convergence -> block; 3: convergence -> block -> convergence
     integer :: crankCase  ! 1:Belyaev formula; 2: Nilsson formula; 3: Odd A formula
 end type
 type(Option_) :: option
@@ -44,9 +45,12 @@ type Input_Parameter
     real(r32)   :: potential_mix    ! mixing parameter
     integer(i16) :: iteration_max    ! max number of iterations
     integer(i8) :: inin             ! Initialization of wavefunctions. 1(calc. from beginning);0(read saved pot.)
-    integer(i8) :: option_iRHB
-    integer(i16),dimension(2) :: block_level ! block level for odd A nuclei
-    integer(i16) :: option_blockType          ! 1: Block at the beginning of the iteration; 2:Block after non-blocking iteration converges; 3: Convergence blocking after convergence of non-blocking iterations
+    integer(i8) :: option_iRHB  ! 0: BCS, 1: RHB
+    integer(i8) :: option_iBlock ! 0: Non-blocking; 1: Block the given energy level; 2: Block according to K^\pi
+    integer(i16),dimension(2) :: block_level ! block level for neutron and proton
+    integer(i16),dimension(2) :: K ! block K for neutron and proton
+    integer(i8),dimension(2) :: Pi ! block parity for neutron and proton
+    integer(i16) :: option_blockMethod          ! 1: Block at the beginning of the iteration; 2:Block after non-blocking iteration converges; 3: Convergence blocking after convergence of non-blocking iterations
     integer(i16) :: option_crankCase
 end type
 type(Input_Parameter) :: input_par
@@ -267,8 +271,10 @@ type Pairing_Parameters
     real(r64),dimension(2) :: spk ! trace of kappa: \sum_{k} f_k u_k v_k
     real(r64),dimension(2) :: dev2 ! average of single-particle pairing gaps : <\Delta>\equiv \frac{\sum_{k} f_{k} v_{k}^{2} \Delta_{k}}{\sum_{k} f_{k} v_{k}^{2}}
 
-    ! odd A nuclei 
+    ! Odd neutron/proton nucleus
     integer,dimension(2) :: block_level ! block level for BCS w.f.
+    integer,dimension(2) :: block_K ! block K ! 1: 1/2;  2: 3/2; ......
+    integer,dimension(2) :: block_Pi ! block parity, 1: + ; -1: -
     integer,dimension(50) :: ibk ! block level of K-Block
     logical :: allow_block ! control block action in BCS loop
 

@@ -3,13 +3,13 @@
 #PBS -o run150Nd.out
 #PBS -e run150Nd.err 
 #PBS -l select=1:ncpus=1:host=cn1   
-ELE=Nd # ZKr #Ca #Mo # Ti # Cr # Fe # Ni # Zn #Ge # Se # Ti62 # Cr64 # Fe66 # Ni68 # Zn70 # # Ge72 # Se74 # Kr #Sr # Zr # Mg # Si # Si # Mg
-A=150
-Nf=12
+ELE=Al # ZKr #Ca #Mo # Ti # Cr # Fe # Ni # Zn #Ge # Se # Ti62 # Cr64 # Fe66 # Ni68 # Zn70 # # Ge72 # Se74 # Kr #Sr # Zr # Mg # Si # Si # Mg
+A=36
+Nf=08
 
 BlockLeveln=00
 BlockLevelp=00
-bType=1
+bType=2
 qusiLevel=${BlockLeveln}
 NUC=${A}${ELE}
 
@@ -56,9 +56,14 @@ icstr    =  2                       ! Quadratic constraint (no 0; beta2 1; b2+b3
 cspr     =  10.00                   ! Spring constant
 cmax     =  1.000                   ! cutoff for dE/db
 iRHB     =  0                       ! 0: BCS; 1: RHB
-bln      =  ${BlockLeveln}          ! block level of Neutron
-blp      =  ${BlockLevelp}          ! block level of Proton
-bType    =  ${bType}                ! 0: no blocking; 1: Self-consistent blocking; 2: Block after convergence; 3: Self-consistent blocking after convergence
+iBlock   =  2                       ! 0: Non-blocking; 1: Block the given energy level; 2: Block according to K^\pi
+bln      =  ${BlockLeveln}          ! block level of Neutron (valid when iBlock=1)
+blp      =  ${BlockLevelp}          ! block level of Proton  (valid when iBlock=1)
+Kn       =  1                       ! K of block neutron, 1: 1/2, 2: 3/2 ...  (valid when iBlock=2)
+Pin      =  -1                       ! Pi of block neutron, 1: + , -1: -       (valid when iBlock=2)
+Kp       =  2                       ! K of block proton,  1: 1/2, 2: 3/2 ...  (valid when iBlock=2)
+Pip      =  1                       ! Pi of block proton, 1: + , -1: -        (valid when iBlock=2)
+bMethod  =  ${bType}                ! block method, 1: blocking -> convergence;   2:convergence -> block; 3: convergence -> block -> convergence
 qsn      =  ${qusiLevel}            ! one quasiparticle state (Neutron) of odd-mass nuclei
 crankCase=  2                       ! 1:Belyaev formula; 2: Nilsson formula; 3: Odd A formula
 c-------------------------------------------------------------------
@@ -82,5 +87,4 @@ echo calculation is finished !
 dataDir=${outputCopyPath}/${NUC}_B${BlockLeveln}_${BlockLevelp}_${Nf}
 mkdir $dataDir -p
 cp ./output/* $dataDir -rf
-cp ./*.out $dataDir -rf
 echo Done!

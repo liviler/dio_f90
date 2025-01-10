@@ -64,8 +64,7 @@ Pin      =  -1                       ! Pi of block neutron, 1: + , -1: -       (
 Kp       =  2                       ! K of block proton,  1: 1/2, 2: 3/2 ...  (valid when iBlock=2)
 Pip      =  1                       ! Pi of block proton, 1: + , -1: -        (valid when iBlock=2)
 bMethod  =  ${bType}                ! block method, 1: blocking -> convergence;   2:convergence -> block; 3: convergence -> block -> convergence
-qsn      =  ${qusiLevel}            ! one quasiparticle state (Neutron) of odd-mass nuclei
-crankCase=  2                       ! 1:Belyaev formula; 2: Nilsson formula; 3: Odd A formula
+Erot     =  2                       ! 1:Belyaev formula; 2: Nilsson formula; 3: Odd A formula
 c-------------------------------------------------------------------
 EOF
 #-----------------------------------

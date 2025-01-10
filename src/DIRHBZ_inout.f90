@@ -109,8 +109,7 @@ subroutine read_file_dio(ifPrint)
     read(u_dio, format8) input_par%K(2)
     read(u_dio, format1) input_par%Pi(2)
     read(u_dio, format1) input_par%option_blockMethod
-    read(u_dio, format8) OddA%qusiparticle_state_neutron
-    read(u_dio, format1) input_par%option_crankCase
+    read(u_dio, format1) input_par%option_Erot
     close(u_dio)
     ! Iteration parameters is set here, while other parameters are set in their respective modules.
     iteration%iteration_max = input_par%iteration_max
@@ -119,7 +118,7 @@ subroutine read_file_dio(ifPrint)
     option%eqType = input_par%option_iRHB
     option%block_type =  input_par%option_iBlock
     option%block_method = input_par%option_blockMethod
-    option%crankCase = input_par%option_crankCase
+    option%Erot_type = input_par%option_Erot
     if(ifPrint) call printInputConfig
     contains
     subroutine printInputConfig
@@ -425,12 +424,12 @@ subroutine write_expectation
                                     format2 = "(i3,3x,f12.6,2x,2(f5.2,2x),2(6x,f5.2,6x),3(f12.6,2x))"
     if(constraint%index==1) then
         write(outputfile%u_outExpectation,format1) "iteration","  epsi","beta2 ","beta3 ",&
-                                                    "beta2_calculate","beta3_calculate","Etot","Erot","Etot+Erot"
+                                                    "beta2_calculate","beta3_calculate","Etot","Erot","Etot-Erot"
     endif
     write(outputfile%u_outExpectation,format2) iteration%ii,iteration%si,&
             constraint%betac(constraint%index),constraint%bet3c(constraint%index), &
             expectations%beta2,expectations%beta3,&
-            expectations%etot,expectations%Erot,expectations%etot+expectations%Erot
+            expectations%etot,expectations%Erot,expectations%etot-expectations%Erot
 end subroutine
 
 subroutine write_wavefuntion

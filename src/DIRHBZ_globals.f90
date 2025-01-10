@@ -14,14 +14,6 @@ implicit none
 public
 
 ! --- input dio.par-------
-type Option_
-    integer :: eqType ! 0: solve dirac equation, 1: solve RHB equation
-    integer :: block_type !  0: Non-blocking; 1: Block the given energy level; 2: Block according to K^\pi
-    integer :: block_method ! 1: blocking -> convergence;   2:convergence -> block; 3: convergence -> block -> convergence
-    integer :: crankCase  ! 1:Belyaev formula; 2: Nilsson formula; 3: Odd A formula
-end type
-type(Option_) :: option
-
 type Input_Parameter
     character(len=10) :: force_name     ! Parameterset name of the Lagrangian
     character(len=3) :: nucleus_name    ! nucleus name
@@ -51,10 +43,20 @@ type Input_Parameter
     integer(i16),dimension(2) :: K ! block K for neutron and proton
     integer(i8),dimension(2) :: Pi ! block parity for neutron and proton
     integer(i16) :: option_blockMethod          ! 1: Block at the beginning of the iteration; 2:Block after non-blocking iteration converges; 3: Convergence blocking after convergence of non-blocking iterations
-    integer(i16) :: option_crankCase
+    integer(i16) :: option_Erot ! Rotation correction energy formula: 0: no; 1:Belyaev formula; 2: Nilsson formula; 3: Odd A formula
 end type
 type(Input_Parameter) :: input_par
 !---- end input dio.par------
+
+
+type Option_
+    integer :: eqType ! 0: solve dirac equation, 1: solve RHB equation
+    integer :: block_type !  0: Non-blocking; 1: Block the given energy level; 2: Block according to K^\pi
+    integer :: block_method ! 1: blocking -> convergence;   2:convergence -> block; 3: convergence -> block -> convergence
+    integer :: Erot_type  ! 0: no; 1:Belyaev formula; 2: Nilsson formula; 3: Odd A formula
+end type
+type(Option_) :: option
+
 
 type Iteration_Parameters 
     integer(i16) :: iteration_max !maxi ! max number of iterations
@@ -350,9 +352,6 @@ type Output_FileName
     !
     character(len=40) :: outExpectation = OUTPUT_PATH//'Expectation.out'
     integer :: u_outExpectation = u_config + 12
-    !
-    character(len=40) :: rotationalTerms = OUTPUT_PATH//'Angularmoment_Inertia.out'
-    integer :: u_rotationalTerms = u_config + 13
 
 end type
 type(Output_FileName) :: outputfile

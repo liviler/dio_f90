@@ -53,7 +53,6 @@ close(outputfile%u_config)
 
 open(outputfile%u_rotationalE, file=outputfile%rotationalE, status='unknown')
 open(outputfile%u_outExpectation, file=outputfile%outExpectation, status='unknown')
-open(outputfile%u_rotationalTerms, file=outputfile%rotationalTerms ,status="unknown")
 
 do constraint_index = 1, constraint%length ! loop for different deformation parameters 
     constraint%index = constraint_index  
@@ -108,7 +107,7 @@ do constraint_index = 1, constraint%length ! loop for different deformation para
             iteration%ii,iteration%si,expectations%betg,expectations%beto
     if(option%eqType .eq. 0) then
         call transform_coefficients_form_cylindrical_to_spherical(ifPrint .and. .True.)
-        ! call calculate_rotational_correction_energy_DIR
+        call calculate_rotational_correction_energy_DIR
         call write_result_DIR
     endif
 

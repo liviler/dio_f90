@@ -64,7 +64,7 @@ subroutine read_file_dio(ifPrint)
                                     format4= "(10x, 2f10.6)", &
                                     format5= "(12x, a10)", &
                                     format6= "(a1, 9x, 2f10.3)", &
-                                    format7= "(a2, i4)",&
+                                    format7= "(a2, i5)",&
                                     format8= "(10x, i8)"
 
     open(u_dio, file=file_path_dio, status='old')
